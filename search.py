@@ -6,6 +6,48 @@
 #--- Import Statements ---
 import sys
 
+#Class: Nodes
+#Class Invariants: None
+#Preconditions: None
+#Postconditions: None
+#Desc:
+#This class will contain class Node children of current index in graph
+class Nodes:
+    nodes = list()
+
+    def __init__(self):
+        self.nodes = list()
+
+    def addNode(self, node):
+        self.nodes.append(node)
+
+    def printChildren(self):
+        for node in self.nodes:
+            print(node.toString())
+
+#Class: Node
+#Class Invariants: None
+#Preconditions: None
+#Postconditions: None
+#Desc:
+#Container class that holds edge weight and child information
+class Node:
+
+    name = ""
+    weight = 0
+
+    def __init__(self, name, weight):
+        self.name = name
+        self.weight = weight
+
+    def getName(self):
+        return self.name
+
+    def getWeight(self):
+        return self.weight
+
+    def toString(self):
+        return "Name:" + str(self.name) + " , Weight:" + str(self.weight)
 
 #Class: Graph
 #Class Invariants: None
@@ -21,35 +63,19 @@ class Graph:
 
     #Constructor
     def __init__(self, start, end):
-        queue = list()
-        stack = list()
-        graph = {}
-        visited = list()
+        self.queue = list()
+        self.stack = list()
+        self.graph = {}
+        self.visited = list()
         self.start = start
         self.end = end
         self.queue.append(int(self.start))
 
-    # _ denotes private internal class.
-    class _Node:
-
-        children = list()
-        weight = 0
-        name = ""
-
-        def __init__(self, name, weight):
-            children = list()
-            self.name = name
-            self.weight = weight
-            children.append("Child")
-
-        def getChildren(self):
-            for child in self.children:
-                print(child)
-
     #Prints all items and their edges in the graph
     def printGraph(self):
-        for node in self.graph.items():
-            print(node)
+        for i in range(1, len(self.graph), 1):
+            self.graph.get(i).printChildren()
+
 
     #Adds new node to graph
     #Preconditions: pos, dest, weight all integers
@@ -57,8 +83,14 @@ class Graph:
     #@pos : position of self node
     #@dest : node to point to from current node
     #@weight : the cost to move from this node to the next
-    def addNode(self, pos, dest, weight):
-        self.graph.update({pos : [dest , weight]})
+    def addNode(self, index, name, weight):
+        if(self.graph.get(index) == None):
+            self.graph.update({index : Nodes()})
+
+        self.graph.get(index).addNode(Node(name, weight))
+
+    def getIndex(self, index):
+        return self.graph.get(index)
 
     #Breadth-First-search
     def BFS(self):
@@ -71,19 +103,6 @@ class Graph:
             print(list())
             return
 
-
-        while len(self.queue) >  0:
-            item = self.queue.pop()
-
-            self.visited.append(int(item))
-
-            if(item == self.end):
-                print(self.visited)
-                return
-
-            self.queue.append(self.graph.get(str(item))[0])
-
-        print(self.visited)
 
     #Depth-First-Search
     def DFS(self):
@@ -132,11 +151,15 @@ def main():
     #splits lines then adds the nodes to a graph
     for line in file:
         items = line.split()
-        graph.addNode(items[0], items[1], items[2])
 
+        graph.addNode(int(items[0]), int(items[1]), int(items[2]))
+
+
+    graph.getIndex(1).printChildren()
     #Search method passed in via CMD line
     if(search == "BFS"):
         graph.BFS()
+
     elif(search == "DFS"):
         graph.DFS()
     elif(search == "UCS"):

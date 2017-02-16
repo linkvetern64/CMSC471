@@ -7,7 +7,6 @@
 import sys
 
 
-
 #Class: Graph
 #Class Invariants: None
 #Preconditions: None
@@ -19,6 +18,7 @@ class Graph:
     visited = list()
     start = 0
     end = 0
+
     #Constructor
     def __init__(self, start, end):
         queue = list()
@@ -29,6 +29,22 @@ class Graph:
         self.end = end
         self.queue.append(int(self.start))
 
+    # _ denotes private internal class.
+    class _Node:
+
+        children = list()
+        weight = 0
+        name = ""
+
+        def __init__(self, name, weight):
+            children = list()
+            self.name = name
+            self.weight = weight
+            children.append("Child")
+
+        def getChildren(self):
+            for child in self.children:
+                print(child)
 
     #Prints all items and their edges in the graph
     def printGraph(self):

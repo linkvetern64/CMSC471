@@ -21,6 +21,9 @@ class Nodes:
     def addNode(self, node):
         self.nodes.append(node)
 
+    def getNodes(self):
+        return self.nodes
+
     def printChildren(self):
         for node in self.nodes:
             print(node.toString())
@@ -35,13 +38,18 @@ class Node:
 
     name = ""
     weight = 0
+    parent = 0
 
-    def __init__(self, name, weight):
+    def __init__(self, name, weight, parent):
         self.name = name
         self.weight = weight
+        self.parent = parent
 
     def getName(self):
         return self.name
+
+    def getParent(self):
+        return self.parent
 
     def getWeight(self):
         return self.weight
@@ -84,25 +92,33 @@ class Graph:
     #@dest : node to point to from current node
     #@weight : the cost to move from this node to the next
     def addNode(self, index, name, weight):
+        #Creates nodes in dictionary if it doesn't exist
         if(self.graph.get(index) == None):
             self.graph.update({index : Nodes()})
+        self.graph.get(index).addNode(Node(name, weight, index))
 
-        self.graph.get(index).addNode(Node(name, weight))
-
+    #Returns
     def getIndex(self, index):
         return self.graph.get(index)
 
     #Breadth-First-search
     def BFS(self):
-
+        self.queue = list()
+        path = list()
         #If start is the same as end, return
         if(self.start == self.end):
             print(list())
             return
-        elif(str(self.start) not in self.graph):
-            print(list())
-            return
 
+        self.queue.append(self.start)
+        while self.queue:
+            tmp = int(self.queue.pop())
+            if tmp == self.end:
+                break
+            for item in self.graph.get(tmp).getNodes():
+                if item.getName() not in self.visited:
+                    self.visited.append(item.getName())
+                    self.queue.append(item.getName())
 
     #Depth-First-Search
     def DFS(self):
@@ -146,27 +162,22 @@ def main():
     end = sys.argv[3]
     search = sys.argv[4]
 
-    graph = Graph(start, end)
+    graph = Graph(int(start), int(end))
 
     #splits lines then adds the nodes to a graph
     for line in file:
         items = line.split()
-
         graph.addNode(int(items[0]), int(items[1]), int(items[2]))
 
 
-    graph.getIndex(1).printChildren()
     #Search method passed in via CMD line
     if(search == "BFS"):
         graph.BFS()
-
     elif(search == "DFS"):
         graph.DFS()
     elif(search == "UCS"):
         graph.UCS()
     else:
         print("Search not listed")
-    #graph.printGraph()
-
 
 main()

@@ -52,18 +52,17 @@ class Node:
         return "Name:" + str(self.name) + " , Weight:" + str(self.weight) + " , Parent:" + str(self.parent)
 
 def main():
-    start = 1
-    end = 4
-    nodes = [None] * end
+    nodes = [None] * 20
 
-    if(nodes[2] == None):
-        nodes[2] = list()
-    nodes[2].append(Node(3,34,2))
-    nodes[2].append(Node(3,34,2))
-    nodes[2].append(Node(3,34,2))
-    nodes[2].append(Node(3,34,2))
-    nodes[2].append(Node(3,34,2))
+    nodes[2] = list()
+    nodes[3] = list()
+    nodes[4] = list()
+    nodes[5] = list()
 
-    print(len(nodes[2]))
+    nodes[2].append(3)
+    nodes[3].append(4)
+    nodes[4].append(5)
+
+
 
 main()

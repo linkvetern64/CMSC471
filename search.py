@@ -14,15 +14,52 @@ import sys
 #This class will contain class Node children of current index in graph
 class Nodes:
     nodes = list()
+    path = list()
+    parent = -1
+    nodes_plain = list()
+    name = 0
 
     def __init__(self):
         self.nodes = list()
+        self.path = list()
+
+    def updateName(self, name):
+        self.name = name
+
+    def insertPlain(self, name):
+        self.nodes_plain.append(name)
+
+    def isChild(self, child):
+        for i in self.nodes:
+            if self.nodes[i].getName() == child:
+                return True
+        return False
+
+    def retPlain(self):
+        kids = list()
+        for i in self.nodes:
+            kids.append(int(i.getName()))
+        return kids
 
     def addNode(self, node):
         self.nodes.append(node)
 
     def getNodes(self):
         return self.nodes
+
+    def updatePath(self, path):
+        self.path.append(path)
+
+    def updateParent(self, parent):
+        self.parent = parent
+    def getParent(self):
+        return self.parent
+
+    def getChildren(self):
+        return self.nodes
+
+    def getPath(self):
+        return self.path
 
     def printChildren(self):
         for node in self.nodes:
@@ -41,12 +78,23 @@ class Node:
     children = list()
     parent = None
     marked = False
+    short_path = list()
 
     def __init__(self, name, weight, parent):
         self.name = name
         self.weight = weight
         self.parent = parent
         self.marked = False
+        self.short_path = list()
+
+    def addToPath(self, name):
+        self.short_path.append(name)
+
+    def getParentNode(self):
+        return self.parent_node
+
+    def getPath(self):
+        return self.short_path
 
     def seen(self):
         self.marked = True
@@ -90,6 +138,7 @@ class Graph:
     start = 0
     end = 0
     nodes = []
+    lastParent = None
 
     #Constructor
     def __init__(self, start, end):
@@ -101,11 +150,27 @@ class Graph:
         self.end = end
         self.nodes = [None] * (50)
 
+    def backTrace(self):
+        b_queue = list()
+        patho = list()
 
-    #Prints all items and their edges in the graph
-    def printGraph(self):
-        for i in range(1, len(self.graph), 1):
-            self.graph.get(i).printChildren()
+        for i in self.nodes:
+            if i != None:
+                print(i.getPath())
+
+        while self.visited:
+            b_queue.append(self.visited.pop(-1))
+        #print(b_queue)
+        val = b_queue.pop(0)
+
+        while b_queue:
+
+            val = b_queue.pop(0)
+
+
+        print(patho)
+
+
 
 
     #Adds new node to graph
@@ -117,44 +182,45 @@ class Graph:
     def addNode(self, name, weight, parent):
         #Creates nodes in dictionary if it doesn't exist
         if(self.nodes[parent] == None):
-            self.nodes[parent] = list()
-        self.nodes[parent].append(Node(name, weight, parent))
+            self.nodes[parent] = Nodes()
+            self.nodes[parent].updateParent(parent)
+        self.nodes[parent].addNode(Node(name, weight, parent))
+        self.nodes[parent].insertPlain(name)
 
-    def printNodes(self):
-        for t in self.nodes:
-            if t != None:
-                for k in t:
-                    print(k.toString())
-    #Returns
-    def getIndex(self, index):
-        return self.graph.get(index)
 
     #Breadth-First-search
     def BFS(self):
+        stack = list()
         self.queue = list()
-        path = list()
+        paths = [[]] * 50
         #If start is the same as end, return
         if(self.start == self.end):
             print(list())
             return
 
         self.queue.append(int(self.start))
+        prior = 0
         while self.queue:
-
             tmp = self.queue.pop(0)
+            self.nodes[tmp].updatePath(tmp)
             if self.nodes[tmp] != None:
-                for node in self.nodes[tmp]:
+                for node in self.nodes[tmp].getChildren():
                     #if node wasn't seen go in
+                    
+                    if tmp not in self.visited:
+                        self.visited.append(tmp)
+
                     if node.wasSeen():
                         self.queue.append(node.getName())
                         node.seen()
+
                     if node.getName() == int(self.end):
-                        p_node = node.getName()
-                        path.append(p_node)
-                        self.nodes[p_node]
+                        self.visited.append(node.getName())
+                        self.backTrace()
+                        return True
+            prior = tmp
 
-
-        print(path)
+        #print(path)
     #Depth-First-Search
     def DFS(self):
 
@@ -197,23 +263,23 @@ def main():
     end = sys.argv[3]
     search = sys.argv[4]
 
-    print(start)
-    print(end)
-    graph = Graph(int(start), int(end))
+    start = 15
+    end = 5
+    #For Hard BFS
 
+    graph = Graph(int(start), int(end))
     #splits lines then adds the nodes to a graph
     for line in file:
         items = line.split()
-        print(items)
         #name, weight, parent
         graph.addNode(int(items[1]), int(items[2]), int(items[0]))
 
     #For BFS and DFS dont need to include weights
-    #
-
+    #put path to get to that current node, in the node themselves.
     #Search method passed in via CMD line
     if(search == "BFS"):
-        graph.BFS()
+        if not graph.BFS():
+            print([])
     elif(search == "DFS"):
         graph.DFS()
     elif(search == "UCS"):

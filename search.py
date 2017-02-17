@@ -48,9 +48,11 @@ class Nodes:
         return self.nodes
 
     def updatePath(self, path):
-        self.path.append(path)
+        for i in path:
+            self.path.append(i)
 
     def updateParent(self, parent):
+        self.path.append(parent)
         self.parent = parent
     def getParent(self):
         return self.parent
@@ -154,21 +156,27 @@ class Graph:
         b_queue = list()
         patho = list()
 
-        for i in self.nodes:
-            if i != None:
-                print(i.getPath())
-
+        patho.append(self.end)
         while self.visited:
             b_queue.append(self.visited.pop(-1))
-        #print(b_queue)
         val = b_queue.pop(0)
 
-        while b_queue:
+        val = b_queue.pop(0)
+        test = self.nodes[val].getPath()
 
-            val = b_queue.pop(0)
+        while test:
+
+            val = test.pop(0)
+
+            patho.append(int(val))
+            if self.start in patho and self.end in patho:
+                break
+        p = list()
+        while patho:
+            p.append(patho.pop(-1))
+        print(p)
 
 
-        print(patho)
 
 
 
@@ -200,17 +208,22 @@ class Graph:
 
         self.queue.append(int(self.start))
         prior = 0
+
+
         while self.queue:
             tmp = self.queue.pop(0)
-            self.nodes[tmp].updatePath(tmp)
+
             if self.nodes[tmp] != None:
+
+                #node is child of self.nodes[tmp]
                 for node in self.nodes[tmp].getChildren():
+                    if self.nodes[node.getName()] != None:
+                        self.nodes[node.getName()].updatePath(self.nodes[tmp].getPath())
                     #if node wasn't seen go in
-                    
                     if tmp not in self.visited:
                         self.visited.append(tmp)
 
-                    if node.wasSeen():
+                    if node.wasSeen() and node.getName() not in self.visited:
                         self.queue.append(node.getName())
                         node.seen()
 
@@ -224,27 +237,35 @@ class Graph:
     #Depth-First-Search
     def DFS(self):
 
-        #If start is the same as end, return
-        if(self.start == self.end):
+        stack = list()
+        self.queue = list()
+        paths = [[]] * 50
+        # If start is the same as end, return
+        if (self.start == self.end):
             print(list())
             return
-        elif(str(self.start) not in self.graph):
-            print(list())
-            return
 
+        self.queue.append(int(self.start))
+        prior = 0
+        while self.queue:
+            tmp = self.queue.pop(-1)
+            self.nodes[tmp].updatePath(tmp)
+            if self.nodes[tmp] != None:
+                for node in self.nodes[tmp].getChildren():
+                    # if node wasn't seen go in
 
-        while len(self.queue) >  0:
-            item = self.queue.pop()
+                    if tmp not in self.visited:
+                        self.visited.append(tmp)
 
-            self.visited.append(int(item))
+                    if node.wasSeen():
+                        self.queue.append(node.getName())
+                        node.seen()
 
-            if(item == self.end):
-                print(self.visited)
-                return
-
-            self.queue.append(self.graph.get(str(item))[0])
-
-        print(self.visited)
+                    if node.getName() == int(self.end):
+                        self.visited.append(node.getName())
+                        self.backTrace()
+                        return True
+            prior = tmp
 
     #Uniform Cost Search
     def UCS(self):
@@ -263,9 +284,11 @@ def main():
     end = sys.argv[3]
     search = sys.argv[4]
 
-    start = 15
-    end = 5
+    #start = 15
+    #end = 5
     #For Hard BFS
+
+
 
     graph = Graph(int(start), int(end))
     #splits lines then adds the nodes to a graph

@@ -38,24 +38,45 @@ class Node:
 
     name = ""
     weight = 0
-    parent = 0
+    children = list()
+    parent = None
+    marked = False
 
     def __init__(self, name, weight, parent):
         self.name = name
         self.weight = weight
         self.parent = parent
+        self.marked = False
+
+    def seen(self):
+        self.marked = True
+
+    def wasSeen(self):
+        return not self.marked
 
     def getName(self):
         return self.name
 
-    def getParent(self):
-        return self.parent
-
     def getWeight(self):
         return self.weight
 
+    def getParent(self):
+        return self.parent
+
+    def hasNext(self):
+        return len(self.children) > 0
+
+    def addChild(self, node):
+        self.children.append(node)
+
+    def getChild(self, key):
+        return self.children.index(key)
+
+    def getChildren(self):
+        return self.children
+
     def toString(self):
-        return "Name:" + str(self.name) + " , Weight:" + str(self.weight)
+        return "Name:" + str(self.name) + " , Weight:" + str(self.weight) + " , Parent:" + str(self.parent)
 
 #Class: Graph
 #Class Invariants: None
@@ -68,6 +89,7 @@ class Graph:
     visited = list()
     start = 0
     end = 0
+    nodes = []
 
     #Constructor
     def __init__(self, start, end):
@@ -77,7 +99,8 @@ class Graph:
         self.visited = list()
         self.start = start
         self.end = end
-        self.queue.append(int(self.start))
+        self.nodes = [None] * (50)
+
 
     #Prints all items and their edges in the graph
     def printGraph(self):
@@ -91,12 +114,17 @@ class Graph:
     #@pos : position of self node
     #@dest : node to point to from current node
     #@weight : the cost to move from this node to the next
-    def addNode(self, index, name, weight):
+    def addNode(self, name, weight, parent):
         #Creates nodes in dictionary if it doesn't exist
-        if(self.graph.get(index) == None):
-            self.graph.update({index : Nodes()})
-        self.graph.get(index).addNode(Node(name, weight, index))
+        if(self.nodes[parent] == None):
+            self.nodes[parent] = list()
+        self.nodes[parent].append(Node(name, weight, parent))
 
+    def printNodes(self):
+        for t in self.nodes:
+            if t != None:
+                for k in t:
+                    print(k.toString())
     #Returns
     def getIndex(self, index):
         return self.graph.get(index)
@@ -110,16 +138,23 @@ class Graph:
             print(list())
             return
 
-        self.queue.append(self.start)
+        self.queue.append(int(self.start))
         while self.queue:
-            tmp = int(self.queue.pop())
-            if tmp == self.end:
-                break
-            for item in self.graph.get(tmp).getNodes():
-                if item.getName() not in self.visited:
-                    self.visited.append(item.getName())
-                    self.queue.append(item.getName())
 
+            tmp = self.queue.pop(0)
+            if self.nodes[tmp] != None:
+                for node in self.nodes[tmp]:
+                    #if node wasn't seen go in
+                    if node.wasSeen():
+                        self.queue.append(node.getName())
+                        node.seen()
+                    if node.getName() == int(self.end):
+                        p_node = node.getName()
+                        path.append(p_node)
+                        self.nodes[p_node]
+
+
+        print(path)
     #Depth-First-Search
     def DFS(self):
 
@@ -162,13 +197,19 @@ def main():
     end = sys.argv[3]
     search = sys.argv[4]
 
+    print(start)
+    print(end)
     graph = Graph(int(start), int(end))
 
     #splits lines then adds the nodes to a graph
     for line in file:
         items = line.split()
-        graph.addNode(int(items[0]), int(items[1]), int(items[2]))
+        print(items)
+        #name, weight, parent
+        graph.addNode(int(items[1]), int(items[2]), int(items[0]))
 
+    #For BFS and DFS dont need to include weights
+    #
 
     #Search method passed in via CMD line
     if(search == "BFS"):

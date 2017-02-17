@@ -15,10 +15,17 @@ class Node:
     name = ""
     weight = 0
     children = list()
+    parent = None
+    marked = 0
 
-    def __init__(self, name, weight):
+    def __init__(self, name, weight, parent):
         self.name = name
         self.weight = weight
+        self.parent = parent
+        self.marked = 0
+
+    def seen(self):
+        self.marked = 1
 
     def getName(self):
         return self.name
@@ -26,26 +33,37 @@ class Node:
     def getWeight(self):
         return self.weight
 
+    def getParent(self):
+        return self.parent
+
+    def hasNext(self):
+        return len(self.children) > 0
+
+    def addChild(self, node):
+        self.children.append(node)
+
+    def getChild(self, key):
+        return self.children.index(key)
+
+    def getChildren(self):
+        return self.children
+
     def toString(self):
-        return "Name:" + str(self.name) + " , Weight:" + str(self.weight)
+        return "Name:" + str(self.name) + " , Weight:" + str(self.weight) + " , Parent:" + str(self.parent)
 
 def main():
+    start = 1
+    end = 4
+    nodes = [None] * end
 
-    graph = {}
+    if(nodes[2] == None):
+        nodes[2] = list()
+    nodes[2].append(Node(3,34,2))
+    nodes[2].append(Node(3,34,2))
+    nodes[2].append(Node(3,34,2))
+    nodes[2].append(Node(3,34,2))
+    nodes[2].append(Node(3,34,2))
 
-    print(graph.get(1) == None)
-
-    graph.update({1 : Nodes()})
-    graph.update({2 : Nodes()})
-
-    graph.get(1).addNode(Node(1,2))
-    graph.get(1).addNode(Node(2,3))
-
-    graph.get(2)
-
-    graph.get(2).addNode(Node(5,6))
-
-    print(graph.get(1).printChildren())
-    print(graph.get(2).printChildren())
+    print(len(nodes[2]))
 
 main()

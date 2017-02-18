@@ -8,7 +8,7 @@ class Nodes:
         self.nodes.append(node)
 
     def printChildren(self):
-        print(len(self.nodes))
+        return self.nodes
 
 class Node:
 
@@ -22,7 +22,12 @@ class Node:
         self.name = name
         self.weight = weight
         self.parent = parent
-        self.marked = 0
+
+    #def __init__(self, name, weight, parent):
+    #    self.name = name
+    #    self.weight = weight
+    #    self.parent = parent
+    #    self.marked = 0
 
     def seen(self):
         self.marked = 1
@@ -52,17 +57,23 @@ class Node:
         return "Name:" + str(self.name) + " , Weight:" + str(self.weight) + " , Parent:" + str(self.parent)
 
 def main():
-    nodes = [None] * 20
+    nodes = [Nodes()] * 50
+    counter = 0
 
-    nodes[2] = list()
-    nodes[3] = list()
-    nodes[4] = list()
-    nodes[5] = list()
+    file = open("example.txt")
+    start = 15
+    end = 5
 
-    nodes[2].append(3)
-    nodes[3].append(4)
-    nodes[4].append(5)
+    for line in file:
+        items = line.split()
+        print(line)
+        nodes[int(items[0])].addNode(Node(int(items[1]), int(items[2]), int(items[0])))
+        # name, weight, parent
+#        graph.addNode(int(items[1]), int(items[2]), int(items[0]))
 
+    for node in nodes:
+        for t in node.printChildren():
+            print(t.toString())
 
 
 main()

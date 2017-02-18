@@ -18,16 +18,28 @@ class Nodes:
     parent = -1
     nodes_plain = list()
     name = 0
+    weight = 1000000
 
     def __init__(self):
         self.nodes = list()
         self.path = list()
+
+    def getWeight(self):
+        return self.weight
+
+    def updateWeight(self, weight):
+        self.weight = weight
 
     def updateName(self, name):
         self.name = name
 
     def insertPlain(self, name):
         self.nodes_plain.append(name)
+
+
+
+    def hasChildren(self):
+        return bool(self.nodes)
 
     def isChild(self, child):
         for i in self.nodes:
@@ -54,14 +66,34 @@ class Nodes:
     def updateParent(self, parent):
         self.path.append(parent)
         self.parent = parent
+
     def getParent(self):
         return self.parent
 
+    #Gets next available child, if none available then return -1
     def getChildren(self):
         return self.nodes
 
     def getPath(self):
         return self.path
+
+    def getNextChild(self):
+
+        for child in self.nodes:
+            if not child.isMarked():
+                self.nodes.remove(child)
+                return child.getName()
+        return -1
+
+    def getNextChildWeighted(self):
+        for child in self.nodes:
+            if not child.isMarked():
+                self.nodes.remove(child)
+                return child.getName()
+        return -1
+
+    def removeChild(self):
+        self.nodes.pop(0)
 
     def printChildren(self):
         for node in self.nodes:
@@ -81,6 +113,7 @@ class Node:
     parent = None
     marked = False
     short_path = list()
+    heavy = 100000
 
     def __init__(self, name, weight, parent):
         self.name = name
@@ -88,6 +121,12 @@ class Node:
         self.parent = parent
         self.marked = False
         self.short_path = list()
+
+    def updateHeavy(self, heavy):
+        self.heavy = heavy
+
+    def getHeavy(self):
+        return self.heavy
 
     def addToPath(self, name):
         self.short_path.append(name)
@@ -100,6 +139,9 @@ class Node:
 
     def seen(self):
         self.marked = True
+
+    def isMarked(self):
+        return self.marked
 
     def wasSeen(self):
         return not self.marked
@@ -164,6 +206,7 @@ class Graph:
         val = b_queue.pop(0)
         test = self.nodes[val].getPath()
 
+
         while test:
 
             val = test.pop(0)
@@ -175,11 +218,6 @@ class Graph:
         while patho:
             p.append(patho.pop(-1))
         print(p)
-
-
-
-
-
 
     #Adds new node to graph
     #Preconditions: pos, dest, weight all integers
@@ -198,23 +236,18 @@ class Graph:
 
     #Breadth-First-search
     def BFS(self):
-        stack = list()
         self.queue = list()
-        paths = [[]] * 50
         #If start is the same as end, return
         if(self.start == self.end):
             print(list())
             return
 
         self.queue.append(int(self.start))
-        prior = 0
-
 
         while self.queue:
             tmp = self.queue.pop(0)
 
             if self.nodes[tmp] != None:
-
                 #node is child of self.nodes[tmp]
                 for node in self.nodes[tmp].getChildren():
                     if self.nodes[node.getName()] != None:
@@ -231,33 +264,70 @@ class Graph:
                         self.visited.append(node.getName())
                         self.backTrace()
                         return True
-            prior = tmp
 
-        #print(path)
     #Depth-First-Search
     def DFS(self):
-
-        stack = list()
         self.queue = list()
-        paths = [[]] * 50
+        self.visited = list()
+        removed = list()
         # If start is the same as end, return
         if (self.start == self.end):
             print(list())
             return
 
         self.queue.append(int(self.start))
-        prior = 0
+        tmp = int(self.start)
+        self.visited.append(tmp)
+        #while the next queue has spots
         while self.queue:
-            tmp = self.queue.pop(-1)
-            self.nodes[tmp].updatePath(tmp)
-            if self.nodes[tmp] != None:
-                for node in self.nodes[tmp].getChildren():
-                    # if node wasn't seen go in
+            #getting stuck here
+            if self.nodes[tmp] != None and self.nodes[tmp].hasChildren():
+                nextChild = self.nodes[tmp].getNextChild()
+                if nextChild > 0 and nextChild not in self.visited:
+                    tmp = nextChild
+                    self.queue.append(nextChild)
+                    self.visited.append(nextChild)
 
+                    if nextChild == self.end:
+                        break
+
+            else:
+                self.queue.pop(-1)
+                tmp = self.queue[-1]
+                removed.append(tmp)
+
+                #while parent has children, populate queue with children, then mark each node
+
+        print(self.queue)
+
+    #Uniform Cost Search
+    def UCS(self):
+        self.queue = list()
+        self.visited = list()
+        removed = list()
+        # If start is the same as end, return
+        if (self.start == self.end):
+            print(list())
+            return
+
+        self.queue.append(int(self.start))
+        tmp = int(self.start)
+        self.visited.append(tmp)
+        # while the next queue has spots
+        while self.queue:
+            tmp = self.queue.pop(0)
+
+            if self.nodes[tmp] != None:
+                # node is child of self.nodes[tmp]
+                min = -1
+                for node in self.nodes[tmp].getChildren():
+                    if self.nodes[node.getName()] != None:
+                        self.nodes[node.getName()].updatePath(self.nodes[tmp].getPath())
+                    # if node wasn't seen go in
                     if tmp not in self.visited:
                         self.visited.append(tmp)
 
-                    if node.wasSeen():
+                    if node.wasSeen() and node.getName() not in self.visited:
                         self.queue.append(node.getName())
                         node.seen()
 
@@ -265,11 +335,8 @@ class Graph:
                         self.visited.append(node.getName())
                         self.backTrace()
                         return True
-            prior = tmp
 
-    #Uniform Cost Search
-    def UCS(self):
-        print("UCS")
+        print(self.queue)
 
 
 #Name: Main
@@ -279,16 +346,19 @@ class Graph:
 def main():
 
     #pulls command line arguments
+    #sys.argv[1] = "med.txt"
     file = open(sys.argv[1])
     start = sys.argv[2]
     end = sys.argv[3]
     search = sys.argv[4]
 
-    #start = 15
-    #end = 5
-    #For Hard BFS
+    #hard
+    start = 15
+    end = 5
 
-
+    #med
+    #start = 2
+    #end = 9
 
     graph = Graph(int(start), int(end))
     #splits lines then adds the nodes to a graph

@@ -19,7 +19,7 @@ class Nodes:
     parent = -1
     nodes_plain = list()
     name = 0
-    weight = math.inf
+    weight = 1000000
 
     def __init__(self):
         self.nodes = list()
@@ -74,35 +74,16 @@ class Nodes:
     def getChildren(self):
         return self.nodes
 
-    def getFatKids(self):
-        for node in self.nodes:
-            node.addWeight(self.weight)
-        return self.nodes
-
     def getPath(self):
         return self.path
 
     def getNextChild(self):
-
         for child in self.nodes:
             if not child.isMarked():
                 self.nodes.remove(child)
                 return child.getName()
         return -1
 
-    def getNextChildWeighted(self):
-        for child in self.nodes:
-            if not child.isMarked():
-                self.nodes.remove(child)
-                return child.getName()
-        return -1
-
-    def removeChild(self):
-        self.nodes.pop(0)
-
-    def printChildren(self):
-        for node in self.nodes:
-            print(node.toString())
 
 #Class: Node
 #Class Invariants: None
@@ -118,7 +99,6 @@ class Node:
     parent = None
     marked = False
     short_path = list()
-    heavy = 100000
 
     def __init__(self, name, weight, parent):
         self.name = name
@@ -127,11 +107,6 @@ class Node:
         self.marked = False
         self.short_path = list()
 
-    def updateHeavy(self, heavy):
-        self.heavy = heavy
-
-    def getHeavy(self):
-        return self.heavy
 
     def addWeight(self,weight):
         self.weight = self.weight + weight
@@ -175,8 +150,6 @@ class Node:
     def getChildren(self):
         return self.children
 
-    def toString(self):
-        return "Name:" + str(self.name) + " , Weight:" + str(self.weight) + " , Parent:" + str(self.parent)
 
 #Class: Graph
 #Class Invariants: None
@@ -346,7 +319,7 @@ class Graph:
                         if self.nodes[child.getName()].getWeight() > new_weight:
                             self.nodes[child.getName()].setWeight(new_weight)
 
-                tmp_child = Node(-1, math.inf, -1)
+                tmp_child = Node(-1, 100000, -1)
                 for child in self.nodes[tmp].getChildren():
                     if child.getName() == self.end:
                         done = True
@@ -375,24 +348,10 @@ class Graph:
 def main():
 
     #pulls command line arguments
-    #sys.argv[1] = "med.txt"
-    #sys.argv[1] = "easy.txt"
     file = open(sys.argv[1])
     start = sys.argv[2]
     end = sys.argv[3]
     search = sys.argv[4]
-
-    #hard
-    #start = 15
-    #end = 5
-
-    #med
-    #start = 10
-    #end = 1
-
-    #easy
-    #start = 1
-    #end = 7
 
     graph = Graph(int(start), int(end))
     #splits lines then adds the nodes to a graph
@@ -407,11 +366,12 @@ def main():
     if(search == "BFS"):
         if not graph.BFS():
             print([])
+
     elif(search == "DFS"):
         graph.DFS()
+
     elif(search == "UCS"):
         graph.UCS()
-    else:
-        print("Search not listed")
+
 
 main()

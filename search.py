@@ -5,6 +5,7 @@
 
 #--- Import Statements ---
 import sys
+import math
 
 #Class: Nodes
 #Class Invariants: None
@@ -18,7 +19,7 @@ class Nodes:
     parent = -1
     nodes_plain = list()
     name = 0
-    weight = 1000000
+    weight = math.inf
 
     def __init__(self):
         self.nodes = list()
@@ -27,7 +28,7 @@ class Nodes:
     def getWeight(self):
         return self.weight
 
-    def updateWeight(self, weight):
+    def setWeight(self, weight):
         self.weight = weight
 
     def updateName(self, name):
@@ -35,7 +36,6 @@ class Nodes:
 
     def insertPlain(self, name):
         self.nodes_plain.append(name)
-
 
 
     def hasChildren(self):
@@ -72,6 +72,11 @@ class Nodes:
 
     #Gets next available child, if none available then return -1
     def getChildren(self):
+        return self.nodes
+
+    def getFatKids(self):
+        for node in self.nodes:
+            node.addWeight(self.weight)
         return self.nodes
 
     def getPath(self):
@@ -128,6 +133,9 @@ class Node:
     def getHeavy(self):
         return self.heavy
 
+    def addWeight(self,weight):
+        self.weight = self.weight + weight
+
     def addToPath(self, name):
         self.short_path.append(name)
 
@@ -183,6 +191,7 @@ class Graph:
     end = 0
     nodes = []
     lastParent = None
+    priority = list()
 
     #Constructor
     def __init__(self, start, end):
@@ -218,6 +227,17 @@ class Graph:
         while patho:
             p.append(patho.pop(-1))
         print(p)
+
+    def playBack(self, queue):
+        tmp = list()
+        result = list()
+        while queue:
+            tmp.append(queue.pop(-1))
+
+        while self.start not in result or self.end not in result:
+            result.insert(0, tmp.pop(0))
+        print(result)
+
 
     #Adds new node to graph
     #Preconditions: pos, dest, weight all integers
@@ -304,40 +324,49 @@ class Graph:
     def UCS(self):
         self.queue = list()
         self.visited = list()
-        removed = list()
+
         # If start is the same as end, return
         if (self.start == self.end):
             print(list())
             return
 
-        self.queue.append(int(self.start))
-        tmp = int(self.start)
-        self.visited.append(tmp)
-        # while the next queue has spots
+        tmp = self.start
+        self.nodes[self.start].setWeight(0)
+        self.queue.append(tmp)
+        done = False
         while self.queue:
-            tmp = self.queue.pop(0)
-
             if self.nodes[tmp] != None:
-                # node is child of self.nodes[tmp]
-                min = -1
-                for node in self.nodes[tmp].getChildren():
-                    if self.nodes[node.getName()] != None:
-                        self.nodes[node.getName()].updatePath(self.nodes[tmp].getPath())
-                    # if node wasn't seen go in
-                    if tmp not in self.visited:
-                        self.visited.append(tmp)
+                #print(self.queue)
 
-                    if node.wasSeen() and node.getName() not in self.visited:
-                        self.queue.append(node.getName())
-                        node.seen()
+                for child in self.nodes[tmp].getChildren():
+                    #print(child.toString())
+                    #print("Nodes(" + str(tmp) + "): Weight = " + str(self.nodes[tmp].getWeight()))
+                    new_weight = self.nodes[tmp].getWeight() + child.getWeight()
+                    if self.nodes[child.getName()] != None:
+                        if self.nodes[child.getName()].getWeight() > new_weight:
+                            self.nodes[child.getName()].setWeight(new_weight)
 
-                    if node.getName() == int(self.end):
-                        self.visited.append(node.getName())
-                        self.backTrace()
-                        return True
+                tmp_child = Node(-1, math.inf, -1)
+                for child in self.nodes[tmp].getChildren():
+                    if child.getName() == self.end:
+                        done = True
+                        break
 
-        print(self.queue)
+                    if self.nodes[child.getName()] != None:
+                        if self.nodes[child.getName()].getWeight() < tmp_child.getWeight() and child.wasSeen():
+                            tmp_child = child
 
+                if tmp_child.getName() > 0:
+                    self.queue.append(tmp_child.getName())
+                    tmp_child.seen()
+                self.visited.append(self.queue.pop(0))
+                if done:
+                    self.visited.append(self.end)
+                    break
+                if self.queue:
+                    tmp = self.queue[0]
+
+        self.playBack(self.visited)
 
 #Name: Main
 #Preconditions: must have arguments - FILE_NAME START_NODE END_NODE SEARCH_TYPE
@@ -347,18 +376,23 @@ def main():
 
     #pulls command line arguments
     #sys.argv[1] = "med.txt"
+    #sys.argv[1] = "easy.txt"
     file = open(sys.argv[1])
     start = sys.argv[2]
     end = sys.argv[3]
     search = sys.argv[4]
 
     #hard
-    start = 15
-    end = 5
+    #start = 15
+    #end = 5
 
     #med
-    #start = 2
-    #end = 9
+    #start = 10
+    #end = 1
+
+    #easy
+    #start = 1
+    #end = 7
 
     graph = Graph(int(start), int(end))
     #splits lines then adds the nodes to a graph

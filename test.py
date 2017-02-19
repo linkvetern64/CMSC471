@@ -57,23 +57,42 @@ class Node:
         return "Name:" + str(self.name) + " , Weight:" + str(self.weight) + " , Parent:" + str(self.parent)
 
 def main():
-    nodes = [Nodes()] * 50
-    counter = 0
+    # Add start to queue and set weight = to 0
+    self.queue.append(int(self.start))
+    self.nodes[self.start].setWeight(0)
 
-    file = open("example.txt")
-    start = 15
-    end = 5
+    tmp = int(self.start)
+    self.visited.append(tmp)
+    self.priority.append((tmp, self.nodes[tmp].getWeight()))
+    tmp = self.priority[0]
 
-    for line in file:
-        items = line.split()
-        print(line)
-        nodes[int(items[0])].addNode(Node(int(items[1]), int(items[2]), int(items[0])))
-        # name, weight, parent
-#        graph.addNode(int(items[1]), int(items[2]), int(items[0]))
+    # while the next queue has spots
+    while self.priority:
+        if self.nodes[tmp[0]] != None and self.nodes[tmp[0]].hasChildren():
+            parent_weight = self.nodes[tmp[0]].getWeight()
+            children = self.nodes[tmp[0]].getFatKids()
 
-    for node in nodes:
-        for t in node.printChildren():
-            print(t.toString())
+            # get the children of the parent for evaluation
+            for child in children:
+                # children to put into priority queue
+                # gets weight from parent to child traversal
+                child_weight = child.getWeight() + parent_weight
+
+                # if the weight from parent to child is less than current weight
+                # set that new weight
+                if self.nodes[child.getName()] != None:
+                    if child_weight < self.nodes[child.getName()].getWeight():
+                        self.nodes[child.getName()].setWeight(child_weight)
+
+                    # add children to priority queue
+                    if child.getName() not in self.visited:
+                        self.priority.append((child.getName(), child.getWeight()))
+                        self.visited.append(child.getName())
+                    self.priority.sort(key=lambda tup: tup[1])
+
+        print(self.priority)
+        # Get lowest weight first
+        tmp = self.priority.pop(0)
 
 
 main()

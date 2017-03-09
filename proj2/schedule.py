@@ -75,6 +75,11 @@ class Schedule:
     def __str__(self):
 
         if 'prettytable' not in sys.modules:
+            #DELETE
+            print("Day and Worker info:")
+            print("Day #:" + str(self.num_days))
+            print("Worker #:" + str(self.num_workers))
+            #DELETE
             out = ''
             for n,day in enumerate(self.schedule):
                 out += str(n)+ ": " + str(day) + "\n"

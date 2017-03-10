@@ -102,18 +102,34 @@ class Schedule:
         return value
 
     def value2(self):
-        value = 0
+        value = self.value1(self)
+
         for day in self.schedule:
-            if day.morning != day.evening: value += 1
-            if day.morning != day.graveyard: value += 1
-            if day.graveyard != day.evening: value += 1
             #check if all odd or all even
             if self.allEven(self, day) or self.allOdd(self, day): value += 1
-
         return value
 
     def value3(self):
-        raise NotImplementedError("Third heuristic is not implemented.")
+        value = self.value2(self)
+        evenShifts = (self.num_days * 3) // self.num_workers
+        lastGrave = -1
+        workerShiftCount = [0] * self.num_workers
+
+        for day in self.schedule:
+            #check if graveyard works following morning
+            workerShiftCount[day.morning] += 1
+            workerShiftCount[day.evening] += 1
+            workerShiftCount[day.graveyard] += 1
+
+            if lastGrave > -1 and lastGrave != day.morning: value+= 1
+            lastGrave = day.graveyard
+
+
+        #check if schedule is unbalanced,
+        for count in workerShiftCount:
+            if count == evenShifts: value+= 1
+
+        return value
 
     def allOdd(self, day):
         return self.isOdd(self, day.morning) and self.isOdd(self, day.evening) and self.isOdd(self, day.graveyard)

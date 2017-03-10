@@ -116,11 +116,12 @@ class Schedule:
         workerShiftCount = [0] * self.num_workers
 
         for day in self.schedule:
-            #check if graveyard works following morning
+            #Update the amount of times a worker works
             workerShiftCount[day.morning] += 1
             workerShiftCount[day.evening] += 1
             workerShiftCount[day.graveyard] += 1
 
+            #check if graveyard works following morning
             if lastGrave > -1 and lastGrave != day.morning: value+= 1
             lastGrave = day.graveyard
 

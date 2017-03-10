@@ -17,10 +17,6 @@ def hillClimb(file):
     #if no the schedule is no longer producing better heuristics
     #return the schedule
 
-    # --------------
-    # Maybe implement a look ahead?
-    # --------------
-
     tmp = copy.deepcopy(schedule)
     print(schedule.value3())
     for day in schedule.schedule:

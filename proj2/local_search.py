@@ -3,8 +3,9 @@ from schedule import Schedule
 def hillClimb():
     print("Hill Climbing: ")
     schedule = Schedule
-    schedule.load(schedule, "sch1.txt")
+    schedule.load(schedule, "sch2.txt")
     print(schedule.__str__(schedule))
+    schedule.value1(schedule)
 
 #simulatedAnnealing is like hill climb
 #except with a probablistic choice at the end

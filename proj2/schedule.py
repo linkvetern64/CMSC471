@@ -79,6 +79,7 @@ class Schedule:
             print("Day and Worker info:")
             print("Day #:" + str(self.num_days))
             print("Worker #:" + str(self.num_workers))
+
             #DELETE
             out = ''
             for n,day in enumerate(self.schedule):
@@ -93,7 +94,12 @@ class Schedule:
         return str(out)
 
     def value1(self):
-        raise NotImplementedError("First heuristic is not implemented.")
+        value = 3 * self.num_days
+        for day in self.schedule:
+            if day.morning == day.evening: value -= 1
+            if day.morning == day.graveyard: value -= 1
+            if day.graveyard == day.evening: value -= 1
+        return value
 
     def value2(self):
         raise NotImplementedError("Second heuristic is not implemented.")

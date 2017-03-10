@@ -102,15 +102,15 @@ class Schedule:
         return value
 
     def value2(self):
-        value = self.value1(self)
+        value = self.value1()
 
         for day in self.schedule:
             #check if all odd or all even
-            if self.allEven(self, day) or self.allOdd(self, day): value += 1
+            if self.allEven(day) or self.allOdd(day): value += 1
         return value
 
     def value3(self):
-        value = self.value2(self)
+        value = self.value2()
         evenShifts = (self.num_days * 3) // self.num_workers
         lastGrave = -1
         workerShiftCount = [0] * self.num_workers
@@ -133,10 +133,10 @@ class Schedule:
         return value
 
     def allOdd(self, day):
-        return self.isOdd(self, day.morning) and self.isOdd(self, day.evening) and self.isOdd(self, day.graveyard)
+        return self.isOdd(day.morning) and self.isOdd(day.evening) and self.isOdd(day.graveyard)
 
     def allEven(self, day):
-        return self.isEven(self, day.morning) and self.isEven(self, day.evening) and self.isEven(self, day.graveyard)
+        return self.isEven(day.morning) and self.isEven(day.evening) and self.isEven(day.graveyard)
 
     def isOdd(self, num):
         return bool(num % 2)

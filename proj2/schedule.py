@@ -94,17 +94,36 @@ class Schedule:
         return str(out)
 
     def value1(self):
-        value = 3 * self.num_days
+        value = 0
         for day in self.schedule:
-            if day.morning == day.evening: value -= 1
-            if day.morning == day.graveyard: value -= 1
-            if day.graveyard == day.evening: value -= 1
+            if day.morning != day.evening: value += 1
+            if day.morning != day.graveyard: value += 1
+            if day.graveyard != day.evening: value += 1
         return value
 
     def value2(self):
-        raise NotImplementedError("Second heuristic is not implemented.")
+        value = 0
+        for day in self.schedule:
+            if day.morning != day.evening: value += 1
+            if day.morning != day.graveyard: value += 1
+            if day.graveyard != day.evening: value += 1
+            #check if all odd or all even
+            if self.allEven(self, day) or self.allOdd(self, day): value += 1
+
+        return value
 
     def value3(self):
         raise NotImplementedError("Third heuristic is not implemented.")
-    
+
+    def allOdd(self, day):
+        return self.isOdd(self, day.morning) and self.isOdd(self, day.evening) and self.isOdd(self, day.graveyard)
+
+    def allEven(self, day):
+        return self.isEven(self, day.morning) and self.isEven(self, day.evening) and self.isEven(self, day.graveyard)
+
+    def isOdd(self, num):
+        return bool(num % 2)
+
+    def isEven(self, num):
+        return not bool((num % 2))
     #add any other methods you need here

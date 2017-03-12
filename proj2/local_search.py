@@ -16,7 +16,7 @@ def hillClimb(file):
     #set schedule to new schedule created
     #if no the schedule is no longer producing better heuristics
     #return the schedule
-
+    #IF IT DOESNT CHANGE KEEP IT AS IT IS
     tmp = copy.deepcopy(schedule)
     print(schedule.value3())
     for day in schedule.schedule:
@@ -55,6 +55,13 @@ def hillClimb(file):
 #except with a probablistic choice at the end
 def simulatedAnnealing():
     print("Simulated Annealing: ")
+    #while t > 0
+    #keep
+    #
+    #
+    #
+    #
+    #
 
 def main():
     #take from args optionally?
@@ -62,7 +69,7 @@ def main():
     schedule = hillClimb("sch2.txt")
     schedule.toFile("new_schedule.txt")
     print(schedule.value3())
-
+    #let TA know how to use program
     pass
 
 if __name__ == "__main__":

@@ -3,6 +3,9 @@ import copy
 import math
 import random
 
+#@Name: hillClimb
+#@Param: file - string of file name passed in
+#@Desc: This function simulates hill climbing algorithm
 def hillClimb(file):
     schedule = tmp = Schedule(0,0)
     schedule.load(file)
@@ -15,7 +18,6 @@ def hillClimb(file):
     #return the schedule
     #IF IT DOESNT CHANGE KEEP IT AS IT IS
     tmp = copy.deepcopy(schedule)
-    print(schedule.value3())
     for day in schedule.schedule:
         tmp_m = day.morning
         tmp_e = day.evening
@@ -44,50 +46,99 @@ def hillClimb(file):
         day.graveyard = tmp_g
     return schedule
 
-def probability(curr, new, )
+#@Name: Probability
+#@Param - curr: the current heuristic value
+#@Param - new: the new heuristic value
+#@Param - temp: the current temperature value
+#@Desc: Calculates probability for simulated annealing
+def probability(curr, new, temp):
+    if(new < curr): return 1
+    return math.exp((curr - new) / temp);
 
-#simulatedAnnealing is like hill climb
-#except with a probablistic choice at the end
+#@Name: Simulated Annealing
+#@Param: file - string of file name passed in
+#@Desc: This function simulates simulated annealing
 def simulatedAnnealing(file):
-    print(file)
     schedule = Schedule(0, 0)
     schedule.load(file)
-    T = 100
-    for day in schedule.schedule:
-        tmp_m = day.morning
-        tmp_e = day.evening
-        tmp_g = day.graveyard
-        best = schedule.value3()
-        rand_worker = random.randrange(0, schedule.num_workers)
+    T = 6000
+    while(T > 1):
+        for day in schedule.schedule:
+            tmp_m = day.morning
+            tmp_e = day.evening
+            tmp_g = day.graveyard
+            best = schedule.value3()
 
-        day.morning = rand_worker
-        if schedule.value3() > best:
-            print("Test")
+            if T < 1: return schedule
+            # handles morning workers
+            day.morning = rand_worker = random.randrange(0, schedule.num_workers)
+            if schedule.value3() <= best:
+                new = schedule.value3()
+                day.morning = tmp_m
+                curr = schedule.value3()
+                if (probability(new, curr, T) > 1):
+                    day.morning = rand_worker
 
-        rand_worker = random.randrange(0, schedule.num_workers)
-        #do a deep copy of the schedule and make changes to see if the change is better
-        #run that value through a probablistic function
-        #pick a random shift and a random worker
-        #
-        #
-        #
+            T -= 1
+            if T < 1: return schedule
 
-        day.morning = tmp_m
-        day.evening = tmp_e
-        day.graveyard = tmp_g
+            # handles evening workers
+            day.evening = rand_worker = random.randrange(0, schedule.num_workers)
+            if schedule.value3() <= best:
+                new = schedule.value3()
+                day.evening = tmp_e
+                curr = schedule.value3()
+                if (probability(new, curr, T) > 1):
+                    day.evening = rand_worker
+
+            T -= 1
+            if T < 1: return schedule
+
+            #Handles the graveyard shift for simulated annealing
+            day.graveyard = rand_worker = random.randrange(0, schedule.num_workers)
+            if schedule.value3() <= best:
+                new = schedule.value3()
+                day.graveyard = tmp_g
+                curr = schedule.value3()
+                if (probability(new, curr, T) > 1):
+                    day.graveyard = rand_worker
+
+            T -= 1
+
     return schedule
 
+#----------------   HOW TO USE ------------------#
+# 1. Simply create a variable and call either hillClimb(file) or
+#    simulatedAnnealing(file).
+#    Ex. hill = hillClimb("schedule.txt")
+#
+# 2. (file) = file of schedule to load into hillclimb and sim.Annealing algorithms
+#
+# 3. To test the hillClimb and simulatedAnnealing algorithms, simply change the value of
+#    test_file to the test file you choose.
+#
+# 4. Two output files of the new schedules will be created, as well as printing of the
+#    final heuristic value for that schedule.
+#
+#
 def main():
-    #take from args optionally?
-    #do the thing
-    #schedule = hillClimb("sch2.txt")
+    #CHANGE ME TO TEST PROGRAM
+    test_file = "sch2.txt" #<------ change this right here :D
+    #CHANGE ME TO TEST PROGRAM
 
-    schedule = simulatedAnnealing("sch2.txt")
+    #Calls hill climb test program and outputs a file
+    hill = hillClimb(test_file)
+    print("Value of hill climb value3 = " + str(hill.value3()))
+    print("Writing new schedule to file...")
+    hill.toFile("hill_schedule.txt")
 
-    schedule.toFile("new_schedule.txt")
-    print(schedule.value3())
-    #let TA know how to use program
-    pass
+    #Calls simulated annealing test program and outputs a file
+    sim = simulatedAnnealing(test_file)
+    print("Value of simulated annealing value3 = " + str(sim.value3()))
+    print("Writing new schedule to file...")
+    sim.toFile("annealing_schedule.txt")
+
+pass
 
 if __name__ == "__main__":
     main()

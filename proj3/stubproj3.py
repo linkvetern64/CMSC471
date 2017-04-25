@@ -1,3 +1,4 @@
+import math
 '''
 Name:
 Date:
@@ -31,6 +32,12 @@ native_country = ["United-States", "Cambodia", "England", "Puerto-Rico", "Canada
                   "Taiwan", "Haiti", "Columbia", "Hungary", "Guatemala", "Nicaragua", "Scotland", "Thailand", "Yugoslavia", 
                   "El-Salvador", "Trinadad&Tobago", "Peru", "Hong", "Holand-Netherlands"]
 
+def entropy(a):
+    return -a * math.log2(a)
+
+def entropy(a, b):
+    return a
+
 def train(data, labels):
     """
     This function should train a decision tree classifier
@@ -42,6 +49,18 @@ def train(data, labels):
     data: a list of attribute vectors, the entire dataset in integer form
     labels: a list of class labels that correspond to the dataset
     """
+
+    val = 6
+    total = len(data)
+    man = 0
+    woman = 0
+    for line in data:
+        man += line[6]
+
+    woman = total - man
+    ent = -(man / total)*math.log2(man/total) - (woman / total)*math.log2(woman/total)
+
+    print(ent)
     return 1
 
 def classify(x, model):
@@ -80,7 +99,6 @@ def main():
         data = []
         labels = []
         for line in f:
-
             #skip bad data
             if len(line) < 10 or "?" in line:
                 continue
@@ -88,6 +106,27 @@ def main():
             line = line.strip().split(",")
             data.append(convert(line[:-1]))
             labels.append(LABELS.index(line[-1]))
+
+    #Count total # of each adult.data
+    #Male ++ then Female ++, entropy calculated with
+    #Male / Total & Female / Total
+    #Do this for all values
+    #for information gain
+    #find the Max-Gain,  by finding the split
+    #that provides the highest possible value.
+    #Information gain is going to determine
+    #how we create our decision tree
+    #Choosing the best attribute
+    #Max-Gain: choose the attribute with the largest
+    #expected information gain, the attribute that will
+    #result in the smallest expected size of the subtrees
+    #rooted at its children
+    #The ID3 algorithm uses the Max-Gain method of selecting
+    #the best attribute
+    #ID3 uses information gain and entropy to create their decision trees
+    #Comparing entropy before and after split is information gain
+    #gain = ent[before] - ent[after]
+    train(data, labels)
 
     '''
     #example run:

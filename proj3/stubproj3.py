@@ -50,12 +50,12 @@ def train(data, labels):
     labels: a list of class labels that correspond to the dataset
     """
 
-    val = 6
+    val = 0
     total = len(data)
     man = 0
     woman = 0
     for line in data:
-        man += line[6]
+        man += line[val]
 
     woman = total - man
     ent = -(man / total)*math.log2(man/total) - (woman / total)*math.log2(woman/total)
@@ -127,7 +127,8 @@ def main():
     #Comparing entropy before and after split is information gain
     #gain = ent[before] - ent[after]
     train(data, labels)
-
+    print("Labels")
+    print(labels)
     '''
     #example run:
     dT = train(data, labels)

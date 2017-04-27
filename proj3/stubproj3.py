@@ -1,4 +1,8 @@
 import math
+from node import Node
+import time
+
+
 '''
 Name:
 Date:
@@ -7,6 +11,7 @@ Project 3: Decision trees
 Please do not change the signature of train() or classify(),
 or you will break the test suite.
 '''
+
 
 #the following are the values for each attibute in the global context so you can use them as needed
 work_class = ["Private", "Self-emp-not-inc", "Self-emp-inc", "Federal-gov", "Local-gov", "State-gov", "Without-pay", "Never-worked"]
@@ -139,26 +144,50 @@ def main():
             data.append(convert(line[:-1]))
             labels.append(LABELS.index(line[-1]))
 
-    #Count total # of each adult.data
-    #Male ++ then Female ++, entropy calculated with
-    #Male / Total & Female / Total
-    #Do this for all values
-    #for information gain
-    #find the Max-Gain,  by finding the split
-    #that provides the highest possible value.
-    #Information gain is going to determine
-    #how we create our decision tree
-    #Choosing the best attribute
-    #Max-Gain: choose the attribute with the largest
-    #expected information gain, the attribute that will
-    #result in the smallest expected size of the subtrees
-    #rooted at its children
-    #The ID3 algorithm uses the Max-Gain method of selecting
-    #the best attribute
-    #ID3 uses information gain and entropy to create their decision trees
-    #Comparing entropy before and after split is information gain
-    #gain = ent[before] - ent[after]
-    tree = train(data, labels)
+
+    #tree = train(data, labels)
+
+    node = Node()
+    node.addBranch("2", "2")
+    node.printBranches()
+
+    print("TESTING")
+    current_milli_time = lambda: int(round(time.time() * 1000))
+    plus = 0
+    app = 0
+    for j in range(0, 10, 1):
+
+        nu = []
+        then = current_milli_time()
+        for i in range(0, 3000000, 1):
+            nu += "a"
+        now = current_milli_time()
+        print("Time ran when doing '+=' = " + str(now - then) + " Milliseconds")
+        plus += (now - then)
+        nu = []
+        then = current_milli_time()
+        for i in range(0, 3000000, 1):
+            nu.append("a")
+        now = current_milli_time()
+        print("Time ran when appending = " + str(now - then) + " Milliseconds")
+        app += (now - then)
+
+    print("Avg. time in milliseconds of '+=' = " + str(plus / 10))
+    print("Avg. time in milliseconds of 'append' = " + str(app / 10))
+
+
+
+    test = {"urge" : ["Test", "IAT", 2, "Predict", True]}
+    test.update({"dang" : "boiii"})
+    print(test)
+    print(test["urge"][3])
+    key = "boiii"
+    if key in test.keys():
+        print("Success!")
+    else:
+        print("Key Doesn't Exist")
+    print(test["dang"])
+
 
     '''
     #example run:

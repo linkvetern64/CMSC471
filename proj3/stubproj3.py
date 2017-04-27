@@ -91,7 +91,6 @@ def train(data, labels):
     print("Best choice is " + columns[new_index] + " with info. gain of " + str(highest_gain))
     #data.sort(key=lambda x: x[0])
 
-
     return 1
 
 def classify(x, model):
@@ -160,6 +159,7 @@ def main():
     #Comparing entropy before and after split is information gain
     #gain = ent[before] - ent[after]
     tree = train(data, labels)
+
     '''
     #example run:
     dT = train(data, labels)

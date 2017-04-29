@@ -1,7 +1,8 @@
 import math
-from node import Node
+from Node import Node
 import time
 
+current_milli_time = lambda: int(round(time.time() * 1000))
 
 '''
 Name:
@@ -38,15 +39,113 @@ native_country = ["United-States", "Cambodia", "England", "Puerto-Rico", "Canada
                   "El-Salvador", "Trinadad&Tobago", "Peru", "Hong", "Holand-Netherlands"]
 
 attributes = [work_class, education, marital, occupation, relationship, race, sex, native_country]
+check = []
+t = 0
 columns = ["work_class", "education", "marital", "occupation", "relationship", "race", "sex", "native_country"]
+checked = [0, 0, 0, 0, 0, 0, 0, 0]
+
+
 
 #This entropy function should take a proportion as a parameter.
 #This will be best used when calculating the parent node.
 #Calculates correctly!!!
 def entropy(a, total):
-    if (total == 0 or a == 0):
-        return 0
+    if total == 0 or a == 0 or (a/total) == 0 or (1 - (a / total)) == 0: return 0
+
     return -(a / total * math.log2(a / total) + (1 - (a / total )) * math.log2(1 - (a / total)))
+
+def infoGain(PEnt, data, labels):
+    data_total = len(labels)
+
+    child_entropy = 0.0
+
+    col_no = 0
+    highest_gain = -1
+    new_index = -1
+    for attribute in attributes:
+        #Shouldn't need to be turned on
+        #if checked[col_no]:
+        #    continue
+
+        for i in range(0, len(attribute), 1):
+            yes = 0
+            index = 0
+            att_total = 0
+            for person in data:
+                # if the value of the att. is equal to subatt being checked
+                if (person[col_no] == i):
+                    yes += labels[index]
+                    att_total += 1
+                index += 1
+
+            child_entropy += (att_total / data_total) * entropy(yes, att_total)
+        gain = PEnt - child_entropy
+        # print("Info. Gain = " + str(gain))
+        if (gain > highest_gain):
+            new_index = col_no
+
+            highest_gain = gain
+        child_entropy = 0.0
+        col_no += 1
+
+
+    #print("Best choice is " + columns[new_index] + " with info. gain of " + str(highest_gain))
+
+    return new_index
+
+def buildDT(head):
+    #Add root, while nodes in next[0]
+    seenNode = []
+    nextNode = []
+    nextNode.append(head)
+
+    while nextNode:
+        node = nextNode.pop(0)
+        data = node.getData()
+        labels = node.getLabels()
+
+        if node in seenNode or len(labels) == 0:
+            continue
+
+        T = 0
+        for i in labels: T += i
+        pEnt = entropy(T, len(labels))
+
+        #if parent entropy isn't 0
+        if float(pEnt) == 0:
+            #sum all the labels up, divide by total
+            #if E < .4 0, E > .4, 1
+            node.updateValue(labels[0])
+
+        else:
+            split = infoGain(pEnt, data, labels)
+
+            if checked[split]:
+                continue
+            checked[split] = 1
+
+            children = []
+            #Check the data against all the possible children
+            for val in range(0, len(attributes[split]), 1):
+                index = 0
+                tmp_node = Node()
+                #Iterate through all the data to find the children
+                for person in data:
+                    if person[split] == val:
+                        #Remove all of that columns data?
+                        tmp_node.updateData(data[index], labels[index])
+                    index += 1
+
+                tmp_node.updateChecked(split)
+                children.append(tmp_node)
+                node.addBranch({str(attributes[split][val]) : tmp_node})
+
+            children.extend(nextNode)
+            nextNode = children
+
+
+        seenNode.append(node)
+
 
 #"""
 #This function should train a decision tree classifier
@@ -59,46 +158,17 @@ def entropy(a, total):
 #labels: a list of class labels that correspond to the dataset
 #"""
 def train(data, labels):
+    #This will be the dT root
+    root = Node()
+    root.setData(data)
+    root.setLabels(labels)
+    buildDT(root)
+    return root
 
-    data_total = len(labels)
-    yes = 0
-
-    for num in labels:
-        yes += num
-
-    #Gets total parent entropy
-    parent_entropy = entropy(yes, data_total)
-    child_entropy = 0.0
-
-    col_no = 0
-    highest_gain = -1
-    new_index = 0
-    for attribute in attributes:
-        for i in range(0, len(attribute), 1):
-            yes = 0
-            index = 0
-            att_total = 0
-            for person in data:
-                #if the value of the att. is equal to subatt being checked
-                if(person[col_no] == i):
-                    yes += labels[index]
-                    att_total += 1
-                index += 1
-            child_entropy += (att_total / data_total) * entropy(yes, att_total)
-        gain = parent_entropy - child_entropy
-        #print("Info. Gain = " + str(gain))
-        if(gain > highest_gain):
-            new_index = col_no
-            highest_gain = gain
-        child_entropy = 0.0
-        col_no += 1
-
-    print("Best choice is " + columns[new_index] + " with info. gain of " + str(highest_gain))
-    #data.sort(key=lambda x: x[0])
-
-    return 1
 
 def classify(x, model):
+    LABELS = ["<=50K",">50K"]
+
     """
     Given a some data point (known or not) x, this function
     should apply the model (trained in the above function)
@@ -108,7 +178,24 @@ def classify(x, model):
     """
     #This should determine if a person has an income of >=50k or < 50k
     #This takes a vector of a person, and model which is the decision tree.
-    return 1
+    nodes = []
+    nodes.append(model)
+
+    #converts back to usable keys
+    person = []
+    index = 0
+    for attribute in attributes:
+        person.append(attribute[x[index]])
+        index += 1
+
+    for node in nodes:
+        for val in person:
+            if node.keyExists(val, person):
+                nodes.append(node.getChild(val))
+            if node.checkGuess(val):
+                return LABELS[node.checkGuess(val)]
+
+        return LABELS[node.value]
 
 def convert(data_list):
     """This function converts the categorical values of data_list into integers """
@@ -144,59 +231,15 @@ def main():
             data.append(convert(line[:-1]))
             labels.append(LABELS.index(line[-1]))
 
-
     #tree = train(data, labels)
 
-    node = Node()
-    node.addBranch("2", "2")
-    node.printBranches()
-
-    print("TESTING")
-    current_milli_time = lambda: int(round(time.time() * 1000))
-    plus = 0
-    app = 0
-    for j in range(0, 10, 1):
-
-        nu = []
-        then = current_milli_time()
-        for i in range(0, 3000000, 1):
-            nu += "a"
-        now = current_milli_time()
-        print("Time ran when doing '+=' = " + str(now - then) + " Milliseconds")
-        plus += (now - then)
-        nu = []
-        then = current_milli_time()
-        for i in range(0, 3000000, 1):
-            nu.append("a")
-        now = current_milli_time()
-        print("Time ran when appending = " + str(now - then) + " Milliseconds")
-        app += (now - then)
-
-    print("Avg. time in milliseconds of '+=' = " + str(plus / 10))
-    print("Avg. time in milliseconds of 'append' = " + str(app / 10))
-
-
-
-    test = {"urge" : ["Test", "IAT", 2, "Predict", True]}
-    test.update({"dang" : "boiii"})
-    print(test)
-    print(test["urge"][3])
-    key = "boiii"
-    if key in test.keys():
-        print("Success!")
-    else:
-        print("Key Doesn't Exist")
-    print(test["dang"])
-
-
-    '''
     #example run:
     dT = train(data, labels)
     sample = ["Private","Bachelors","Married-civ-spouse","Exec-managerial","Husband","Asian-Pac-Islander","Male","Japan"] #>50K
     sample = convert(sample)
     lbl = classify(sample, dT)
     print(sample, lbl)
-    '''
+
 
 if __name__ == "__main__":
     main()

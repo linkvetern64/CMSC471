@@ -20,7 +20,8 @@ def distance(p1, p2):
 
 
 #Train a k-means classifier with the given data and labels.
-def train(data, labels, k=9):
+def train(data, labels, k=3):
+    #k = 9 #gives 96.67%
     if len(data) != len(labels): raise Exception('Data size inconsistent with labels')
     #Will contain random centroid points for clustering
     points = []
@@ -33,10 +34,49 @@ def train(data, labels, k=9):
         points.append(Point(data[i], labels[i]))
 
     #Generate random points and append
+
     for i in range(0, k, 1):
         loc = points[random.randrange(0,len(points),1)].getData()
         centroids.append(Centroid(loc, i))
 
+
+    #Gets K-means starting centroids by random grouping selection
+    '''
+    index = 0
+    for label in labelsUnique:
+        sub = []
+        for i in range(0, len(data), 1):
+            if labels[i] == label:
+                sub.append(data[i])
+
+        loc = sub[random.randrange(0, len(sub), 1)]
+        centroids.append(Centroid(loc, index))
+        index += 1
+    '''
+
+    # Gets K-means starting centroids by means of initial labels grouping
+    '''
+    index = 0
+    for label in labelsUnique:
+        sub = [0, 0, 0, 0]
+        total = 0
+        for i in range(0, len(data), 1):
+            if labels[i] == label:
+                sub[0] += data[i][0]
+                sub[1] += data[i][1]
+                sub[2] += data[i][2]
+                sub[3] += data[i][3]
+                total += 1
+
+        if total != 0:
+            sub[0] = sub[0] / total
+            sub[1] = sub[1] / total
+            sub[2] = sub[2] / total
+            sub[3] = sub[3] / total
+
+        centroids.append(Centroid(sub, index))
+        index += 1
+    '''
     #Start the clustering algorithm
     for n in range(0, 30, 1):
         for point in points:

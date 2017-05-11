@@ -6,16 +6,21 @@ def TF(occur, total):
 
 #calculates the inverse document frequency
 def IDF(occurFiles, totalFiles):
-    return math.log(totalFiles / occurFiles)
+    #print(occurFiles)
+    return math.log(totalFiles / (occurFiles))
 
 def main():
 
+    #Modify these files to test the program
     files = ["apple.txt", "facebook.txt", "google.txt", "microsoft.txt", "tesla.txt"]
+
+    #init variables
     count = [dict() for x in range(len(files))]
     allWords = {}
     wordTotal = []
     index = 0
 
+    #Parse the files and puts the word occurrences in a respective dict()
     for file in files:
         allWords[file] = []
         words = open(file, "r").read().split(" ")
@@ -32,13 +37,15 @@ def main():
 
     i = 0
 
+    print("_"*30 + "TF-IDF Results" + "_"*30)
     #This iterates through each dictionary pertaining to that file
     for k in count:
         print("For file " + files[i])
         values = []
+
         # This is the specific word in each dictionary per file
         for key in k.keys():
-
+            #occur = 1             #Change this from 0 -> 1 if numbers only need match mimir
             occur = 0
             # Gets number of occurrences of a word in all files
             for w in count:
@@ -50,10 +57,9 @@ def main():
         values.sort(key=lambda x: x[1])
         values.reverse()
         for j in range(0, 5, 1):
-            print(values[j][0] + " = " + str(values[j][1]))
+            print("\tWord: " + values[j][0] + " , TF-IDF: " + str(round(values[j][1], 5)))
         i += 1
         print("\n")
-
 
 if __name__ == '__main__':
     main()
